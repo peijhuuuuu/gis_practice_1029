@@ -5,14 +5,12 @@ import pandas as pd
 
 
 st.title("Plotly 3D 地圖 (向量 - 地球儀)")
-
+uploaded_file = st.file_uploader("上傳 taiwan_town_lifeExp.csv", type=["csv"])
+if uploaded_file:
+    df = pd.read_csv(uploaded_file)
+    st.write(df.head())
 # --- 1. 載入 Plotly 內建的範例資料 ---
 df = pd.read_csv("taiwan_town_lifeExp.csv")
-# px.data 提供了幾個內建的範例資料集，方便使用者練習或展示。
-# gapminder() 是其中一個內建函式，它會載入著名的 Gapminder 資料集。
-# 這個資料集包含了世界各國多年的平均壽命 (lifeExp)、人均 GDP (gdpPercap) 和人口 (pop) 等數據。
-# .query("year == 2007")是 pandas DataFrame 提供的一個方法，用於根據字串表達式來篩選資料框的列 (rows)。
-# "year == 2007" 是一個字串形式的查詢條件，意思是「選取 'year' 欄位的值等於 2007 的那些列」。
 
 # --- 2. 建立 3D 地理散點圖 (scatter_geo) ---
 fig = px.scatter_geo(
