@@ -6,8 +6,8 @@ import pandas as pd
 
 st.title("🔥 全球火災熱點地圖")
 
-url = "https://firms.modaps.eosdis.nasa.gov/data/csv/MODIS_Global_7d.csv"
-df = pd.read_csv(url)
+    url = "https://firms.modaps.eosdis.nasa.gov/data/csv/MODIS_Global_7d.csv"
+    df = pd.read_csv(url)
 
     # 檢查欄位
     required_columns = ["latitude", "longitude", "brightness", "acq_date"]
