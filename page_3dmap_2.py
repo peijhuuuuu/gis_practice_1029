@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 import pandas as pd
 
 
-st.title("Plotly 3D 地圖 (向量 - 地球儀)")
+st.title("Plotly 3D 地圖 (台灣各鄉鎮 3D 地球儀互動地圖)")
 uploaded_file = st.file_uploader("請上傳 taiwan_town_lifeExp.csv", type=["csv"])
 
 if uploaded_file:
@@ -13,20 +13,30 @@ if uploaded_file:
     st.subheader("資料預覽")
     st.dataframe(df.head())
 
-# --- 1. 載入 Plotly 內建的範例資料 ---
-df = pd.read_csv("taiwan_town_lifeExp.csv")
+ fig = px.scatter_geo(
+        df,
+        lat="lat",
+        lon="lon",
+        color="lifeExp",   # 顏色代表平均壽命
+        size="pop",        # 點大小代表人口
+        hover_name="town", # 滑鼠顯示鄉鎮名稱
+        projection="orthographic",
+        scope="asia"       # 聚焦亞洲/台灣
+    )
 
-# --- 2. 建立 3D 地理散點圖 (scatter_geo) ---
-fig = px.scatter_geo(
-    df,
-    lat="lat",
-    lon="lon",
-    color="lifeExp",
-    size="pop",
-    hover_name="town",
-    scope="asia",  # 將地圖範圍縮到亞洲/台灣
-    projection="natural earth"
-)
+    fig.update_layout(
+        geo=dict(
+            showland=True,
+            showcountries=True,
+            showframe=False,
+            showcoastlines=True,
+            lataxis_showgrid=True,
+            lonaxis_showgrid=True,
+            bgcolor="rgba(0,0,0,0)"
+        ),
+        margin=dict(l=0, r=0, t=0, b=0)
+    )
+
 # "orthographic" 投影會將地球渲染成一個從太空中看到的球體，
 # 從而產生類似 3D 地球儀的視覺效果。
 # 其他常見投影如 "natural earth", "mercator" 等通常是 2D 平面地圖。
