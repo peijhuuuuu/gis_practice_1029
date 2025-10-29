@@ -4,56 +4,34 @@ import plotly.graph_objects as go
 import pandas as pd
 
 
-st.title("Plotly 3D 地圖 (台灣各鄉鎮 3D 地球儀互動地圖)")
-# 上傳 CSV
-uploaded_file = st.file_uploader("請上傳人口密度 CSV", type=["csv"])
+st.title("🔥 全球火災熱點地圖")
+
+# --- 上傳 CSV ---
+uploaded_file = st.file_uploader("請上傳 NASA FIRMS 火災 CSV", type=["csv"])
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
 
-    # 經緯度字典
-    city_coords = {
-        "臺北市": {"lat": 25.0330, "lon": 121.5654},
-        "新北市": {"lat": 25.016, "lon": 121.462},
-        "桃園市": {"lat": 24.993, "lon": 121.296},
-        "臺中市": {"lat": 24.1477, "lon": 120.6736},
-        "臺南市": {"lat": 22.9999, "lon": 120.2270},
-        "高雄市": {"lat": 22.6273, "lon": 120.3014},
-        "基隆市": {"lat": 25.128, "lon": 121.739},
-        "新竹市": {"lat": 24.805, "lon": 120.971},
-        "新竹縣": {"lat": 24.833, "lon": 121.089},
-        "苗栗縣": {"lat": 24.567, "lon": 120.819},
-        "彰化縣": {"lat": 24.080, "lon": 120.541},
-        "南投縣": {"lat": 23.909, "lon": 120.685},
-        "雲林縣": {"lat": 23.709, "lon": 120.431},
-        "嘉義市": {"lat": 23.480, "lon": 120.449},
-        "嘉義縣": {"lat": 23.458, "lon": 120.573},
-        "屏東縣": {"lat": 22.550, "lon": 120.548},
-        "宜蘭縣": {"lat": 24.702, "lon": 121.737},
-        "花蓮縣": {"lat": 23.987, "lon": 121.601},
-        "臺東縣": {"lat": 22.758, "lon": 121.144},
-        "澎湖縣": {"lat": 23.565, "lon": 119.623},
-        "金門縣": {"lat": 24.436, "lon": 118.318},
-        "連江縣": {"lat": 26.160, "lon": 119.934}
-    }
+    # 檢查欄位
+    required_columns = ["latitude", "longitude", "brightness", "acq_date"]
+    if not all(col in df.columns for col in required_columns):
+        st.error(f"CSV 必須包含欄位: {required_columns}")
+    else:
+        # 建立地理散點圖
+        fig = px.scatter_geo(
+            df,
+            lat="latitude",
+            lon="longitude",
+            color="brightness",       # 火勢強度
+            size="brightness",        # 點大小也代表火勢
+            hover_name="acq_date",    # 滑鼠懸停顯示火災日期
+            projection="natural earth",
+            color_continuous_scale="YlOrRd",  # 火焰色系
+            title="全球火災分布 (衛星觀測)"
+        )
 
-    # 將經緯度加入 DataFrame
-    df["lat"] = df["區域別"].map(lambda x: city_coords.get(x, {"lat": None})["lat"])
-    df["lon"] = df["區域別"].map(lambda x: city_coords.get(x, {"lon": None})["lon"])
-    df["人口密度"] = pd.to_numeric(df["人口密度"], errors="coerce")
-    # 畫地圖
-    fig = px.scatter_geo(
-        df,
-        lat="lat",
-        lon="lon",
-        size="人口密度",
-        color="人口密度",
-        hover_name="區域別",
-        projection="natural earth",
-        scope="asia"
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
+        # 顯示圖表
+        st.plotly_chart(fig, use_container_width=True)
 
 # use_container_width=True:當設定為 True 時，Streamlit 會忽略 Plotly 圖表物件本身可能設定的寬度，
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
