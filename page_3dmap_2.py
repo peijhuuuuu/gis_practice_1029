@@ -40,7 +40,7 @@ if uploaded_file:
     # 將經緯度加入 DataFrame
     df["lat"] = df["區域別"].map(lambda x: city_coords.get(x, {"lat": None})["lat"])
     df["lon"] = df["區域別"].map(lambda x: city_coords.get(x, {"lon": None})["lon"])
-
+    df["人口密度"] = pd.to_numeric(df["人口密度"], errors="coerce")
     # 畫地圖
     fig = px.scatter_geo(
         df,
