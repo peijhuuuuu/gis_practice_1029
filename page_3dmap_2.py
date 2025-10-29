@@ -5,10 +5,14 @@ import pandas as pd
 
 
 st.title("Plotly 3D 地圖 (向量 - 地球儀)")
-uploaded_file = st.file_uploader("上傳 taiwan_town_lifeExp.csv", type=["csv"])
+uploaded_file = st.file_uploader("請上傳 taiwan_town_lifeExp.csv", type=["csv"])
+
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
-    st.write(df.head())
+    
+    st.subheader("資料預覽")
+    st.dataframe(df.head())
+
 # --- 1. 載入 Plotly 內建的範例資料 ---
 df = pd.read_csv("taiwan_town_lifeExp.csv")
 
