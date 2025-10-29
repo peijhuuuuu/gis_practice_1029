@@ -5,7 +5,7 @@ import pandas as pd
 
 
 st.title("Plotly 3D 地圖 (台灣各鄉鎮 3D 地球儀互動地圖)")
-uploaded_file = st.file_uploader("請上傳 taiwan_town_lifeExp.csv", type=["csv"])
+uploaded_file = st.file_uploader("請上傳 CSV", type=["csv"])
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
@@ -13,15 +13,15 @@ if uploaded_file:
     st.subheader("資料預覽")
     st.dataframe(df.head())
 
- fig = px.scatter_geo(
+    fig = px.scatter_geo(
         df,
         lat="lat",
         lon="lon",
-        color="lifeExp",   # 顏色代表平均壽命
-        size="pop",        # 點大小代表人口
-        hover_name="town", # 滑鼠顯示鄉鎮名稱
+        color="lifeExp",
+        size="pop",
+        hover_name="town",
         projection="orthographic",
-        scope="asia"       # 聚焦亞洲/台灣
+        scope="asia"
     )
 
     fig.update_layout(
@@ -30,20 +30,12 @@ if uploaded_file:
             showcountries=True,
             showframe=False,
             showcoastlines=True,
-            lataxis_showgrid=True,
-            lonaxis_showgrid=True,
             bgcolor="rgba(0,0,0,0)"
         ),
         margin=dict(l=0, r=0, t=0, b=0)
     )
 
-# "orthographic" 投影會將地球渲染成一個從太空中看到的球體，
-# 從而產生類似 3D 地球儀的視覺效果。
-# 其他常見投影如 "natural earth", "mercator" 等通常是 2D 平面地圖。
-
-
-# --- 3. 在 Streamlit 中顯示 ---
-st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 # use_container_width=True:當設定為 True 時，Streamlit 會忽略 Plotly 圖表物件本身可能設定的寬度，
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
 # 或是一個展開器 (expander) 的寬度)。
