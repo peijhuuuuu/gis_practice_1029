@@ -5,34 +5,49 @@ import pandas as pd
 
 
 st.title("Plotly 3D 地圖 (台灣各鄉鎮 3D 地球儀互動地圖)")
-uploaded_file = st.file_uploader("請上傳 CSV", type=["csv"])
+
+uploaded_file = st.file_uploader("請上傳人口密度 CSV", type=["csv"])
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
-    
-    st.subheader("資料預覽")
-    st.dataframe(df.head())
+city_coords = {
+    "臺北市": {"lat": 25.0330, "lon": 121.5654},
+    "新北市": {"lat": 25.016, "lon": 121.462},
+    "桃園市": {"lat": 24.993, "lon": 121.296},
+    "臺中市": {"lat": 24.1477, "lon": 120.6736},
+    "臺南市": {"lat": 22.9999, "lon": 120.2270},
+    "高雄市": {"lat": 22.6273, "lon": 120.3014},
+    "基隆市": {"lat": 25.128, "lon": 121.739},
+    "新竹市": {"lat": 24.805, "lon": 120.971},
+    "新竹縣": {"lat": 24.833, "lon": 121.089},
+    "苗栗縣": {"lat": 24.567, "lon": 120.819},
+    "彰化縣": {"lat": 24.080, "lon": 120.541},
+    "南投縣": {"lat": 23.909, "lon": 120.685},
+    "雲林縣": {"lat": 23.709, "lon": 120.431},
+    "嘉義市": {"lat": 23.480, "lon": 120.449},
+    "嘉義縣": {"lat": 23.458, "lon": 120.573},
+    "屏東縣": {"lat": 22.550, "lon": 120.548},
+    "宜蘭縣": {"lat": 24.702, "lon": 121.737},
+    "花蓮縣": {"lat": 23.987, "lon": 121.601},
+    "臺東縣": {"lat": 22.758, "lon": 121.144},
+    "澎湖縣": {"lat": 23.565, "lon": 119.623},
+    "金門縣": {"lat": 24.436, "lon": 118.318},
+    "連江縣": {"lat": 26.160, "lon": 119.934}
+}
+    # 將經緯度加進去
+    df["lat"] = df["區域別"].map(lambda x: city_coords[x]["lat"])
+    df["lon"] = df["區域別"].map(lambda x: city_coords[x]["lon"])
 
+    # 畫地圖
     fig = px.scatter_geo(
         df,
         lat="lat",
         lon="lon",
-        color="lifeExp",
-        size="pop",
-        hover_name="town",
-        projection="orthographic",
+        size="人口密度",
+        color="人口密度",
+        hover_name="區域別",
+        projection="natural earth",
         scope="asia"
-    )
-
-    fig.update_layout(
-        geo=dict(
-            showland=True,
-            showcountries=True,
-            showframe=False,
-            showcoastlines=True,
-            bgcolor="rgba(0,0,0,0)"
-        ),
-        margin=dict(l=0, r=0, t=0, b=0)
     )
 
     st.plotly_chart(fig, use_container_width=True)
