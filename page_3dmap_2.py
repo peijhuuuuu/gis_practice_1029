@@ -18,7 +18,7 @@ df = px.data.gapminder().query("year == 2007")
 fig = px.scatter_geo(
     df,
     locations="iso_alpha", 
-    locationmode="country names" # 國家代碼
+    locationmode="country names",# 國家代碼
     color="lifeEXP",      # 依據大陸洲別上色
     hover_name="country",   # 滑鼠懸停時顯示國家名稱
     size="pop",             # 點的大小代表人口數
