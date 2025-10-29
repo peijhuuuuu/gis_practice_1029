@@ -20,9 +20,6 @@ fig = px.scatter_geo(
     locations="iso_alpha",  # 使用 ISO-3 代碼
     color="lifeExp",
     hover_name="country",
-    size="pop",
-    locations="iso_alpha", 
-    # 滑鼠懸停時顯示國家名稱
     size="pop",             # 點的大小代表人口數
 
     # *** 關鍵：使用 "orthographic" 投影法來建立 3D 地球儀 ***
