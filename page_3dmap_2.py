@@ -25,8 +25,13 @@ st.plotly_chart(fig, use_container_width=True)
 # use_container_width=True:當設定為 True 時，Streamlit 會忽略 Plotly 圖表物件本身可能設定的寬度，
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
 # 或是一個展開器 (expander) 的寬度)。
-import plotly.graph_objects as go
-from plotly.datasets import volcano  # 內建範例
+import rasterio
+import pandas as pd
+
+with rasterio.open("fuji_dem.tif") as src:
+    arr = src.read(1)  # 讀取第一波段
+    df = pd.DataFrame(arr)
+    df.to_csv("fuji.csv", index=False, header=False) # 內建範例
 
 st.title("Plotly 3D 火山 DEM")
 
