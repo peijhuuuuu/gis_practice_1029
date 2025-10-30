@@ -26,41 +26,45 @@ st.plotly_chart(fig, use_container_width=True)
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
 # 或是一個展開器 (expander) 的寬度)。
 
-st.title("🌆 全球城市人口 3D 高度圖")
+st.title("🌆 全球城市人口 3D 高度圖 (Surface)")
 
-# --- 1. 載入資料 ---
-# 使用 GeoNames 公開城市資料 (你也可以換成自己的 CSV)
-# CSV 格式需包含: city, country, lat, lon, population
+# --- 1. 讀取城市資料 ---
 url = "https://simplemaps.com/static/data/world-cities/basic/simplemaps_worldcities_basicv1.75/worldcities.csv"
 df = pd.read_csv(url)
+df = df[df['population'] > 1000000]  # 只取人口超過 100 萬
 
-# 只選取人口超過 1,000,000 的城市，避免圖太密
-df = df[df['population'] > 1000000]
+# --- 2. 建立網格 (經緯度格子) ---
+lon_bins = np.linspace(-180, 180, 100)  # 經度格子數
+lat_bins = np.linspace(-90, 90, 50)     # 緯度格子數
 
-# --- 2. 建立 3D 散點圖 ---
-fig = go.Figure(data=[go.Bar3d(
-    x=df['lng'],               # 經度
-    y=df['lat'],               # 緯度
-    z=[0]*len(df),             # 柱子底部從 0 開始
-    dx=0.5,                    # X 軸柱子寬度
-    dy=0.5,                    # Y 軸柱子寬度
-    dz=df['population'],       # 高度對應人口
-    text=df['city'] + ", " + df['country'],  # 滑鼠提示
-    hoverinfo='text+z',
-    opacity=0.8
+# 每個格子的人口總和
+grid_population = np.zeros((len(lat_bins), len(lon_bins)))
+
+# 把每個城市加到對應格子
+for _, row in df.iterrows():
+    lon_idx = np.searchsorted(lon_bins, row['lng']) - 1
+    lat_idx = np.searchsorted(lat_bins, row['lat']) - 1
+    if 0 <= lon_idx < len(lon_bins) and 0 <= lat_idx < len(lat_bins):
+        grid_population[lat_idx, lon_idx] += row['population']
+
+# --- 3. 建立 3D Surface ---
+fig = go.Figure(data=[go.Surface(
+    z=grid_population,
+    x=lon_bins,
+    y=lat_bins,
+    colorscale="Viridis"
 )])
 
-# --- 3. 調整 3D 視角 ---
 fig.update_layout(
+    title="全球人口超過 100 萬城市 3D Surface",
     scene=dict(
         xaxis_title='經度',
         yaxis_title='緯度',
-        zaxis_title='人口 (百萬)',
+        zaxis_title='人口'
     ),
-    title="全球人口超過 100 萬的城市 3D 分布",
     width=900,
     height=700
 )
 
-# --- 4. 顯示在 Streamlit ---
+# --- 4. 顯示 ---
 st.plotly_chart(fig, use_container_width=True)
