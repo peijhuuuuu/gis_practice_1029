@@ -26,10 +26,17 @@ st.plotly_chart(fig, use_container_width=True)
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
 # 或是一個展開器 (expander) 的寬度)。
 
-st.title("Plotly 3D 地圖 - 阿爾卑斯山 DEM")
-z_data = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/2011_alps_elevation.csv")
+# --- 1. 設定標題 ---
+st.title("Plotly 3D 地圖 (珠穆朗瑪峰 DEM)")
 
-# --- 2. 建立 3D Surface 圖 ---
+# --- 2. 讀取 Everest DEM CSV 資料 ---
+# 這個 CSV 是 Everest 山區的高程資料
+z_data = pd.read_csv(
+    "https://raw.githubusercontent.com/DahnJ/Awesome-DEM/master/data/everest_sample.csv",
+    header=None  # 沒有欄位名稱，直接讀成 2D 陣列
+)
+
+# --- 3. 建立 3D Surface 圖 ---
 fig = go.Figure(
     data=[
         go.Surface(
@@ -39,17 +46,17 @@ fig = go.Figure(
     ]
 )
 
-# --- 3. 調整 3D 視角和外觀 ---
+# --- 4. 調整 3D 視角和外觀 ---
 fig.update_layout(
-    title="阿爾卑斯山 3D 地形圖",
+    title="Everest 山區 3D 地形圖 (可旋轉)",
     width=800,
     height=700,
     scene=dict(
-        xaxis_title='經度 (X)',
-        yaxis_title='緯度 (Y)',
+        xaxis_title='X (格網索引)',
+        yaxis_title='Y (格網索引)',
         zaxis_title='海拔 (Z)'
     )
 )
 
-# --- 4. 在 Streamlit 顯示 ---
+# --- 5. 在 Streamlit 中顯示 ---
 st.plotly_chart(fig)
