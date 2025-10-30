@@ -25,35 +25,31 @@ st.plotly_chart(fig, use_container_width=True)
 # use_container_width=True:當設定為 True 時，Streamlit 會忽略 Plotly 圖表物件本身可能設定的寬度，
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
 # 或是一個展開器 (expander) 的寬度)。
-import rasterio
-import pandas as pd
 
-with rasterio.open("fuji_dem.tif") as src:
-    arr = src.read(1)  # 讀取第一波段
-    df = pd.DataFrame(arr)
-    df.to_csv("fuji.csv", index=False, header=False) # 內建範例
+st.title("Plotly 3D 地圖 - 阿爾卑斯山 DEM")
+z_data = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/2011_alps_elevation.csv")
 
-st.title("Plotly 3D 火山 DEM")
-
-# --- 1. 讀取範例 DEM ---
-z_data = volcano()  # 直接取 2D 陣列
-
-# --- 2. 建立 3D Surface ---
+# --- 2. 建立 3D Surface 圖 ---
 fig = go.Figure(
-    data=[go.Surface(z=z_data, colorscale="Viridis")]
+    data=[
+        go.Surface(
+            z=z_data.values,
+            colorscale="Viridis"
+        )
+    ]
 )
 
-# --- 3. 調整 3D 視角 ---
+# --- 3. 調整 3D 視角和外觀 ---
 fig.update_layout(
-    title="火山 DEM 3D 地形圖",
+    title="阿爾卑斯山 3D 地形圖",
     width=800,
     height=700,
     scene=dict(
-        xaxis_title='X',
-        yaxis_title='Y',
-        zaxis_title='海拔'
+        xaxis_title='經度 (X)',
+        yaxis_title='緯度 (Y)',
+        zaxis_title='海拔 (Z)'
     )
 )
 
-# --- 4. 顯示 ---
+# --- 4. 在 Streamlit 顯示 ---
 st.plotly_chart(fig)
