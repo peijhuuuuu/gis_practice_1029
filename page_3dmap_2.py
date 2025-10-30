@@ -6,7 +6,7 @@ import pandas as pd
 
 st.title("🔥 全球火災熱點地圖")
 # --- 載入資料 ---
-url = "https://drive.google.com/file/d/1kEhZRm9cIpeO4xKvtl1EHc8cpm86K1To/view?usp=drive_link"
+url = "https://drive.google.com/uc?id=1kEhZRm9cIpeO4xKvtl1EHc8cpm86K1To"
 df = pd.read_csv(url)
 
 # --- 畫地圖 ---
