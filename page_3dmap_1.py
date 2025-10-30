@@ -70,3 +70,69 @@ r = pdk.Deck(
 st.pydeck_chart(r)
 
 st.caption("資料為模擬生成，用於展示台北市主要商業聚集區的 3D 熱度分布。")
+
+
+st.title("台北市商業熱度 3D 模擬地形圖（免金鑰版）")
+
+# 模擬網格範圍（整個台北市）
+x, y = np.meshgrid(np.linspace(-1, 1, 80), np.linspace(-1, 1, 80))
+
+# 模擬幾個商圈中心（信義、西門、東區、士林、南港）
+def gaussian_peak(x, y, cx, cy, h, s):
+    return h * np.exp(-((x - cx)**2 + (y - cy)**2) / (2 * s**2))
+
+z = (
+    gaussian_peak(x, y, 0.4, -0.2, 1.2, 0.25) +  # 信義區
+    gaussian_peak(x, y, -0.4, 0.1, 0.9, 0.25) +  # 士林
+    gaussian_peak(x, y, 0.0, 0.5, 0.8, 0.3) +    # 東區
+    gaussian_peak(x, y, -0.2, -0.3, 1.0, 0.2) +  # 西門町
+    gaussian_peak(x, y, 0.6, 0.5, 0.7, 0.25)     # 南港
+) * 1000  # 高度放大倍數
+
+# 整理成 DataFrame
+data_dem_list = []
+base_lat, base_lon = 25.04, 121.55
+for i in range(x.shape[0]):
+    for j in range(x.shape[1]):
+        data_dem_list.append({
+            "lon": base_lon + x[i, j] * 0.1,
+            "lat": base_lat + y[i, j] * 0.1,
+            "elevation": z[i, j]
+        })
+df_dem = pd.DataFrame(data_dem_list)
+
+# ===============================================
+# 2. Pydeck GridLayer（立體方塊圖）
+# ===============================================
+layer_grid = pdk.Layer(
+    'GridLayer',
+    data=df_dem,
+    get_position='[lon, lat]',
+    get_elevation_weight='elevation',
+    elevation_scale=1.5,      # 柱子高度加強
+    cell_size=1200,           # 柱子更密集
+    extruded=True,
+    pickable=True
+)
+
+# ===============================================
+# 3. 視角設定
+# ===============================================
+view_state = pdk.ViewState(
+    latitude=base_lat,
+    longitude=base_lon,
+    zoom=11.5,
+    pitch=55
+)
+
+# ===============================================
+# 4. 組合與顯示
+# ===============================================
+r = pdk.Deck(
+    layers=[layer_grid],
+    initial_view_state=view_state,
+    map_style="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+    tooltip={"text": "商業熱度: {elevationValue}"}
+)
+
+st.pydeck_chart(r)
