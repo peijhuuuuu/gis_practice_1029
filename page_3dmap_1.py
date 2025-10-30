@@ -3,12 +3,12 @@ import pandas as pd
 import numpy as np
 import pydeck as pdk
 
-st.title("Pydeck 3D 地圖 (向量 - 密度圖)")
+import streamlit as st
+import pandas as pd
+import numpy as np
+import pydeck as pdk
 
-# 0. 檢查 Mapbox 金鑰是否存在於 Secrets 中 (名稱應為 MAPBOX_API_KEY)
-if "MAPBOX_API_KEY" not in st.secrets:
-    st.error("Mapbox API Key (名稱需為 MAPBOX_API_KEY) 未設定！請在雲端 Secrets 中設定。")
-    st.stop()
+st.title("Pydeck 3D 地圖 (向量 - 密度圖)")
 
 # --- 1. 生成範例資料 (向量) ---
 data = pd.DataFrame({
@@ -17,7 +17,7 @@ data = pd.DataFrame({
 })
 
 # --- 2. 設定 Pydeck 圖層 (Layer) ---
-layer_hexagon = pdk.Layer( # 稍微改個名字避免混淆
+layer_hexagon = pdk.Layer(
     'HexagonLayer',
     data=data,
     get_position='[lon, lat]',
@@ -29,20 +29,21 @@ layer_hexagon = pdk.Layer( # 稍微改個名字避免混淆
 )
 
 # --- 3. 設定攝影機視角 (View State) ---
-view_state_hexagon = pdk.ViewState( # 稍微改個名字避免混淆
+view_state_hexagon = pdk.ViewState(
     latitude=25.0478,
     longitude=121.5170,
     zoom=12,
     pitch=50,
 )
 
-# --- 4. 組合圖層和視角並顯示 (第一個地圖) ---
-r_hexagon = pdk.Deck( # 稍微改個名字避免混淆
+# --- 4. 組合圖層和視角並顯示 (不使用 Mapbox Key) ---
+r_hexagon = pdk.Deck(
     layers=[layer_hexagon],
     initial_view_state=view_state_hexagon,
-    # mapbox_key=MAPBOX_KEY, # <-- 移除
+    map_style='light',  # <-- 使用免費內建樣式，不需金鑰
     tooltip={"text": "這個區域有 {elevationValue} 個熱點"}
 )
+
 st.pydeck_chart(r_hexagon)
 
 
