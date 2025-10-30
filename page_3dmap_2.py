@@ -5,29 +5,22 @@ import pandas as pd
 
 
 st.title("🔥 全球火災熱點地圖")
+# --- 載入資料 ---
+url = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/c6/csv/MODIS_C6_Global_24h.csv"
+df = pd.read_csv(url)
 
-    url = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.csv"
-    df = pd.read_csv(url)
+# --- 畫地圖 ---
+fig = px.scatter_geo(
+    df,
+    lat="latitude",
+    lon="longitude",
+    color="brightness",
+    hover_name="acq_date",
+    projection="orthographic",
+    title="全球火災偵測 (最近 24 小時)"
+)
 
-    # 檢查欄位
-    required_columns = ["latitude", "longitude", "brightness", "acq_date"]
-    if not all(col in df.columns for col in required_columns):
-        st.error(f"CSV 必須包含欄位: {required_columns}")
-    else:
-        # 建立地理散點圖
-        fig = px.scatter_geo(
-            df,
-            lat="latitude",
-            lon="longitude",
-            color="brightness",       # 火勢強度        
-            hover_name="acq_date",    # 滑鼠懸停顯示火災日期
-            projection="natural earth",
-            color_continuous_scale="YlOrRd",  # 火焰色系
-            title="全球火災分布 (衛星觀測)"
-        )
-
-        # 顯示圖表
-        st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, use_container_width=True)
 
 # use_container_width=True:當設定為 True 時，Streamlit 會忽略 Plotly 圖表物件本身可能設定的寬度，
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
