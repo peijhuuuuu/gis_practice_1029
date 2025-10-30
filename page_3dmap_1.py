@@ -2,71 +2,72 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pydeck as pdk
+st.title("台灣地震高風險區域 (自動抓資料)")
 
-import streamlit as st
-import pandas as pd
-import numpy as np
-import pydeck as pdk
+# 1. 抓取即時地震資料（歷史／高風險區視需要）  
+#   這裡以政府開放資料「地震目錄」為例 :contentReference[oaicite:3]{index=3}
+url = "https://data.gov.tw/api/v1/rest/dataset/97095?format=json"  # 注意：根據實際 API 端點可能需改
+resp = requests.get(url)
+if resp.status_code != 200:
+    st.error("無法取得地震資料")
+    st.stop()
 
-st.title("Pydeck 3D 地圖 (向量 - 密度圖)")
+data_json = resp.json()
+# 假設 JSON 中有「資料」欄位且包含經緯度（緯度 lat, 經度 lon）與震級 magnitude
+df = pd.json_normalize(data_json['resources'])  # 根據實際欄位結構調整
+# 我們只取經緯、震級作為「風險指標」
+df = df[['EpicenterLatitude', 'EpicenterLongitude', 'LocalMagnitude']]
+df.columns = ['lat', 'lon', 'magnitude']
 
-# --- 1. 生成範例資料 (向量) ---
-data = pd.DataFrame({
-    'lat': 25.0478 + np.random.randn(1000) / 50,
-    'lon': 121.5170 + np.random.randn(1000) / 50,
-})
+# 2. 可以新增一個「風險等級」欄位，例如震級 >= 5 為高風險，4‑5 中，低於4 低風險
+def risk_level(mag):
+    if mag >= 5:
+        return 3
+    elif mag >= 4:
+        return 2
+    else:
+        return 1
 
-# --- 2. 設定 Pydeck 圖層 (Layer) ---
-layer_hexagon = pdk.Layer(
-    'HexagonLayer',
-    data=data,
+df['risk'] = df['magnitude'].apply(risk_level)
+
+# 3. 使用 Pydeck 的 HexagonLayer 來呈現密度／風險熱區
+layer = pdk.Layer(
+    "HexagonLayer",
+    data=df,
     get_position='[lon, lat]',
-    radius=100,
-    elevation_scale=4,
-    elevation_range=[0, 1000],
-    pickable=True,
+    radius=1000,             # hexagon 半徑可調
+    elevation_scale=50,       # 3D 高度比例
+    elevation_range=[0, 5000],
     extruded=True,
+    pickable=True,
+    auto_highlight=True,
+    # 根據 risk 等級給予顏色漸層：低藍→中黃→高紅
+    color_range=[
+        [0, 0, 255],    # 藍
+        [255, 255, 0],  # 黃
+        [255, 0, 0]     # 紅
+    ],
+    # 依據欄位「risk」來分類色彩／高度
+    get_elevation='risk',
+    get_fill_color='[risk * 85, (3-risk) * 85, 0]'
 )
 
-# --- 3. 設定攝影機視角 (View State) ---
-view_state_hexagon = pdk.ViewState(
-    latitude=25.0478,
-    longitude=121.5170,
-    zoom=12,
-    pitch=50,
+view_state = pdk.ViewState(
+    latitude=23.5,
+    longitude=121,
+    zoom=6,
+    pitch=50
 )
 
-# --- 4. 組合圖層和視角並顯示 (不使用 Mapbox Key) ---
-r_hexagon = pdk.Deck(
-    layers=[layer_hexagon],
-    initial_view_state=view_state_hexagon,
-    map_style='light',  # <-- 使用免費內建樣式，不需金鑰
-    tooltip={"text": "這個區域有 {elevationValue} 個熱點"}
+r = pdk.Deck(
+    layers=[layer],
+    initial_view_state=view_state,
+    map_style='dark',  # 你也可以改成 'light' 或其他
+    tooltip={"text": "這個六角格內最高風險等級：{elevationValue}"}
 )
 
-st.pydeck_chart(r_hexagon)
+st.pydeck_chart(r)
 
-
-# ===============================================
-#          第二個地圖：模擬 DEM
-# ===============================================
-
-st.title("Pydeck 3D 地圖 (網格 - DEM 模擬)")
-
-# --- 1. 模擬 DEM 網格資料 ---
-x, y = np.meshgrid(np.linspace(-1, 1, 50), np.linspace(-1, 1, 50))
-z = np.exp(-(x**2 + y**2) * 2) * 1000
-
-data_dem_list = [] # 修正: 建立一個列表來收集字典
-base_lat, base_lon = 25.0, 121.5
-for i in range(50):
-    for j in range(50):
-        data_dem_list.append({ # 修正: 將字典附加到列表中
-            "lon": base_lon + x[i, j] * 0.1,
-            "lat": base_lat + y[i, j] * 0.1,
-            "elevation": z[i, j]
-        })
-df_dem = pd.DataFrame(data_dem_list) # 從列表創建 DataFrame
 
 # --- 2. 設定 Pydeck 圖層 (GridLayer) ---
 layer_grid = pdk.Layer( # 稍微改個名字避免混淆
