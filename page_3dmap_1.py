@@ -3,65 +3,64 @@ import pandas as pd
 import numpy as np
 import pydeck as pdk
 
-st.title("🏙️ 台北市商圈 3D 熱度地圖")
+st.title("🏙️ 台北市商業活動 3D 熱度地圖")
 
-# --- 1. 生成台北市商圈範圍內的隨機資料 ---
-# 模擬「人潮位置」，主要分布在幾個商圈中心附近
+# --- 1. 模擬全台北市商業區人流資料 ---
 np.random.seed(42)
 
-# 商圈中心點（經緯度）
+# 商業聚集區中心點
 centers = {
+    "信義計畫區": [25.0340, 121.5645],
+    "東區商圈": [25.0419, 121.5440],
     "西門町": [25.0422, 121.5085],
-    "信義區": [25.0340, 121.5645],
-    "東區": [25.0419, 121.5440],
+    "南西商圈": [25.0523, 121.5189],
+    "公館商圈": [25.0142, 121.5340],
     "士林夜市": [25.0880, 121.5250],
-    "公館": [25.0142, 121.5340],
-    "永康街": [25.0330, 121.5290],
+    "內湖科技園區": [25.0806, 121.5754],
+    "南港園區": [25.0528, 121.6060],
 }
 
-# 依據各商圈中心生成隨機人流點
+# 生成模擬人流資料
 data_list = []
 for name, (lat, lon) in centers.items():
-    for _ in range(200):  # 每個商圈生成 200 筆資料
+    n_points = np.random.randint(300, 800)  # 每區生成點數
+    for _ in range(n_points):
         data_list.append({
-            "商圈": name,
-            "lat": lat + np.random.randn() / 500,  # 在附近隨機散布
-            "lon": lon + np.random.randn() / 500,
+            "商業區": name,
+            "lat": lat + np.random.randn() / 600,
+            "lon": lon + np.random.randn() / 600,
         })
 
 data = pd.DataFrame(data_list)
 
-st.subheader("📍 模擬商圈人流資料（前10筆）")
-st.dataframe(data.head(10))
-
-# --- 2. 建立 3D HexagonLayer ---
+# --- 2. 設定 Pydeck 3D HexagonLayer ---
 layer_hexagon = pdk.Layer(
     "HexagonLayer",
     data=data,
     get_position='[lon, lat]',
-    radius=120,  # 六角格半徑（公尺）
-    elevation_scale=50,  # 高度比例
-    elevation_range=[0, 1000],
+    radius=180,           # 每個六角格的半徑（公尺）
+    elevation_scale=12,   # 高度比例（越大越高）
+    elevation_range=[0, 500],
     pickable=True,
     extruded=True,
 )
 
-# --- 3. 設定攝影機視角 ---
+# --- 3. 攝影機視角 ---
 view_state = pdk.ViewState(
     latitude=25.04,
     longitude=121.54,
     zoom=12,
-    pitch=55,
+    pitch=50,
 )
 
-# --- 4. 顯示 3D 地圖 ---
-r_hexagon = pdk.Deck(
+# --- 4. 顯示地圖 ---
+r = pdk.Deck(
     layers=[layer_hexagon],
     initial_view_state=view_state,
-    map_style="light",  # 可改成 "dark" 或 "satellite"
-    tooltip={"text": "熱度：{elevationValue}"}
+    map_style="light",  # 可改 "dark" / "satellite"
+    tooltip={"text": "{商業區}\n熱度：{elevationValue}"}
 )
 
-st.pydeck_chart(r_hexagon)
+st.pydeck_chart(r)
 
-st.caption("資料為模擬生成，用於展示台北市主要商圈的3D人流熱度分布效果。")
+st.caption("資料為模擬生成，用於展示台北市商業活動的 3D 熱度分布效果。")
