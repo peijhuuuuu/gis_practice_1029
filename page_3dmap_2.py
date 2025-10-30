@@ -43,7 +43,7 @@ df = df[df['population'] > 1000000]
 
 # --- 2. 建立 3D 散點圖 ---
 fig = go.Figure(data=[go.Scatter3d(
-    x=df['lon'],
+    x=df['lng'],
     y=df['lat'],
     z=df['population'] / 1000000,  # 用百萬人口作為高度
     text=df['city'] + ", " + df['country'],  # 滑鼠懸停顯示
