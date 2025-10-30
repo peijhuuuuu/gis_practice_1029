@@ -26,45 +26,48 @@ st.plotly_chart(fig, use_container_width=True)
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
 # 或是一個展開器 (expander) 的寬度)。
 
-st.title("🌊 全球海洋表面溫度 3D 曲面圖")
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
 
-# --- 2. 載入海溫資料 (NOAA 公開資料範例) ---
-# 這是一份模擬全球海溫格點資料
-# （實際來源：https://raw.githubusercontent.com/plotly/datasets/master/ocean_surface.csv）
-url = "https://raw.githubusercontent.com/plotly/datasets/master/ocean_surface.csv"
+st.title("🌆 全球城市人口 3D 高度圖")
+
+# --- 1. 載入資料 ---
+# 使用 GeoNames 公開城市資料 (你也可以換成自己的 CSV)
+# CSV 格式需包含: city, country, lat, lon, population
+url = "https://simplemaps.com/static/data/world-cities/basic/simplemaps_worldcities_basicv1.75/worldcities.csv"
 df = pd.read_csv(url)
 
-# 這個資料中：
-# X = 經度, Y = 緯度, Z = 海表溫度 (°C)
-x = np.linspace(-180, 180, df.shape[1])
-y = np.linspace(-90, 90, df.shape[0])
-z = df.values
+# 只選取人口超過 1,000,000 的城市，避免圖太密
+df = df[df['population'] > 1000000]
 
-# --- 3. 建立 3D 曲面圖 ---
-fig = go.Figure(
-    data=[
-        go.Surface(
-            x=x,
-            y=y,
-            z=z,
-            colorscale="RdBu_r",  # 紅藍反轉色階：紅=高溫, 藍=低溫
-            colorbar_title="海溫 (°C)",
-        )
-    ]
-)
+# --- 2. 建立 3D 散點圖 ---
+fig = go.Figure(data=[go.Scatter3d(
+    x=df['lon'],
+    y=df['lat'],
+    z=df['population'] / 1000000,  # 用百萬人口作為高度
+    text=df['city'] + ", " + df['country'],  # 滑鼠懸停顯示
+    mode='markers',
+    marker=dict(
+        size=5,
+        color=df['population'],      # 用人口數作顏色
+        colorscale='Viridis',
+        colorbar=dict(title='Population'),
+        opacity=0.8
+    )
+)])
 
-# --- 4. 外觀設定 ---
+# --- 3. 調整 3D 視角 ---
 fig.update_layout(
-    title="🌍 全球海洋表面溫度分布 (3D)",
     scene=dict(
-        xaxis_title="經度 (Longitude)",
-        yaxis_title="緯度 (Latitude)",
-        zaxis_title="溫度 (°C)",
-        aspectratio=dict(x=2, y=1, z=0.4)
+        xaxis_title='經度',
+        yaxis_title='緯度',
+        zaxis_title='人口 (百萬)',
     ),
+    title="全球人口超過 100 萬的城市 3D 分布",
     width=900,
-    height=700,
+    height=700
 )
 
-# --- 5. 顯示 ---
-st.plotly_chart(fig)
+# --- 4. 顯示在 Streamlit ---
+st.plotly_chart(fig, use_container_width=True)
