@@ -25,47 +25,37 @@ st.plotly_chart(fig, use_container_width=True)
 # use_container_width=True:當設定為 True 時，Streamlit 會忽略 Plotly 圖表物件本身可能設定的寬度，
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
 # 或是一個展開器 (expander) 的寬度)。
-import numpy as np
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
 
-st.title("🌆 全球城市人口 3D 高度圖 (Surface)")
+st.title("Plotly 3D 地圖 (網格 - DEM 表面)")
 
-# --- 1. 讀取城市資料 ---
-url = "https://simplemaps.com/static/data/world-cities/basic/simplemaps_worldcities_basicv1.75/worldcities.csv"
-df = pd.read_csv(url)
-df = df[df['population'] > 1000000]  # 只取人口超過 100 萬
+# --- 1. 讀取範例 DEM 資料 (Mount Eden / Maunga Whau) ---
+# 這是一個 2D 陣列，每個格子的值就是海拔 (公尺)
+z_data = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_eden_elevation.csv")
 
-# --- 2. 建立網格 (經緯度格子) ---
-lon_bins = np.linspace(-180, 180, 100)  # 經度格子數
-lat_bins = np.linspace(-90, 90, 50)     # 緯度格子數
-
-# 每個格子的人口總和
-grid_population = np.zeros((len(lat_bins), len(lon_bins)))
-
-# 把每個城市加到對應格子
-for _, row in df.iterrows():
-    lon_idx = np.searchsorted(lon_bins, row['lng']) - 1
-    lat_idx = np.searchsorted(lat_bins, row['lat']) - 1
-    if 0 <= lon_idx < len(lon_bins) and 0 <= lat_idx < len(lat_bins):
-        grid_population[lat_idx, lon_idx] += row['population']
-
-# --- 3. 建立 3D Surface ---
-fig = go.Figure(data=[go.Surface(
-    z=grid_population,
-    x=lon_bins,
-    y=lat_bins,
-    colorscale="Viridis"
-)])
-
-fig.update_layout(
-    title="全球人口超過 100 萬城市 3D Surface",
-    scene=dict(
-        xaxis_title='經度',
-        yaxis_title='緯度',
-        zaxis_title='人口'
-    ),
-    width=900,
-    height=700
+# --- 2. 建立 3D Surface 圖 ---
+fig = go.Figure(
+    data=[
+        go.Surface(
+            z=z_data.values,
+            colorscale="Viridis"
+        )
+    ]
 )
 
-# --- 4. 顯示 ---
-st.plotly_chart(fig, use_container_width=True)
+# --- 3. 調整 3D 視角和外觀 ---
+fig.update_layout(
+    title="Mount Eden 3D 地形圖 (可旋轉)",
+    width=800,
+    height=700,
+    scene=dict(
+        xaxis_title='經度 (X)',
+        yaxis_title='緯度 (Y)',
+        zaxis_title='海拔 (Z)'
+    )
+)
+
+# --- 4. 在 Streamlit 中顯示 ---
+st.plotly_chart(fig)
