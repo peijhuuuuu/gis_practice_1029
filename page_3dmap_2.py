@@ -25,6 +25,7 @@ st.plotly_chart(fig, use_container_width=True)
 # use_container_width=True:當設定為 True 時，Streamlit 會忽略 Plotly 圖表物件本身可能設定的寬度，
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
 # 或是一個展開器 (expander) 的寬度)。
+import numpy as np
 
 st.title("🌆 全球城市人口 3D 高度圖 (Surface)")
 
