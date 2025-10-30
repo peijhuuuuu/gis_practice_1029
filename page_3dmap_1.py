@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pydeck as pdk
+import requests
+resp = requests.get("https://jsonplaceholder.typicode.com/todos/1")
+print(resp.json())
 st.title("台灣地震高風險區域 (自動抓資料)")
 
 # 1. 抓取即時地震資料（歷史／高風險區視需要）  
