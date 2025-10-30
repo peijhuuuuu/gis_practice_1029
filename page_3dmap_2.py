@@ -53,8 +53,8 @@ fig.update_layout(
     width=800,
     height=700,
     scene=dict(
-        xaxis_title='X (格網索引)',
-        yaxis_title='Y (格網索引)',
+        xaxis_title='X軸',
+        yaxis_title='Y軸',
         zaxis_title='海拔 (Z)'
     )
 )
