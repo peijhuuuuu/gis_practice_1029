@@ -25,37 +25,30 @@ st.plotly_chart(fig, use_container_width=True)
 # use_container_width=True:當設定為 True 時，Streamlit 會忽略 Plotly 圖表物件本身可能設定的寬度，
 # 並強制讓圖表的寬度自動延展，以填滿其所在的 Streamlit 容器 (例如，主頁面的寬度、某個欄位 (column) 的寬度，
 # 或是一個展開器 (expander) 的寬度)。
-import streamlit as st
-import pandas as pd
 import plotly.graph_objects as go
+from plotly.datasets import volcano  # 內建範例
 
-st.title("Plotly 3D 地圖 (網格 - DEM 表面)")
+st.title("Plotly 3D 火山 DEM")
 
-# --- 1. 讀取範例 DEM 資料 (Mount Eden / Maunga Whau) ---
-# 這是一個 2D 陣列，每個格子的值就是海拔 (公尺)
-z_data = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_eden_elevation.csv")
+# --- 1. 讀取範例 DEM ---
+z_data = volcano()  # 直接取 2D 陣列
 
-# --- 2. 建立 3D Surface 圖 ---
+# --- 2. 建立 3D Surface ---
 fig = go.Figure(
-    data=[
-        go.Surface(
-            z=z_data.values,
-            colorscale="Viridis"
-        )
-    ]
+    data=[go.Surface(z=z_data, colorscale="Viridis")]
 )
 
-# --- 3. 調整 3D 視角和外觀 ---
+# --- 3. 調整 3D 視角 ---
 fig.update_layout(
-    title="Mount Eden 3D 地形圖 (可旋轉)",
+    title="火山 DEM 3D 地形圖",
     width=800,
     height=700,
     scene=dict(
-        xaxis_title='經度 (X)',
-        yaxis_title='緯度 (Y)',
-        zaxis_title='海拔 (Z)'
+        xaxis_title='X',
+        yaxis_title='Y',
+        zaxis_title='海拔'
     )
 )
 
-# --- 4. 在 Streamlit 中顯示 ---
+# --- 4. 顯示 ---
 st.plotly_chart(fig)
