@@ -27,14 +27,17 @@ st.plotly_chart(fig, use_container_width=True)
 # 或是一個展開器 (expander) 的寬度)。
 
 # --- 1. 設定標題 ---
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+import requests
+import io
 st.title("Plotly 3D 地圖 (珠穆朗瑪峰 DEM)")
-
-# --- 2. 讀取 Everest DEM CSV 資料 ---
-# 這個 CSV 是 Everest 山區的高程資料
-z_data = pd.read_csv(
-    "https://raw.githubusercontent.com/DahnJ/Awesome-DEM/master/data/everest_sample.csv",
-    header=None  # 沒有欄位名稱，直接讀成 2D 陣列
-)
+# --- 2. 使用 requests 下載 CSV，再用 pandas 讀取 ---
+url = "https://raw.githubusercontent.com/DahnJ/Awesome-DEM/master/data/everest_sample.csv"
+response = requests.get(url)
+response.raise_for_status()  # 如果下載失敗會直接報錯
+z_data = pd.read_csv(io.StringIO(response.text), header=None)  # 直接讀成 2D 陣列
 
 # --- 3. 建立 3D Surface 圖 ---
 fig = go.Figure(
