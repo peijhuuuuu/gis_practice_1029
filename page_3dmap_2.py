@@ -4,9 +4,9 @@ import plotly.graph_objects as go
 import pandas as pd
 
 
-st.title("🔥美國火災地圖 (NASA FIRMS 資料)")
+st.title("🔥全球火災地圖 (NASA FIRMS 資料)")
 # --- 載入資料 ---
-url = "https://drive.google.com/uc?id=1kEhZRm9cIpeO4xKvtl1EHc8cpm86K1To"
+url = "https://drive.google.com/uc?export=download&id=1nZ6Y19CWta8TU8KNae_KhMudVnkygLZT"
 df = pd.read_csv(url)
 
 # --- 畫地圖 ---
