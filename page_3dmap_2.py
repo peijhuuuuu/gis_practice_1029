@@ -6,7 +6,7 @@ import pandas as pd
 
 st.title("🔥 全球火災熱點地圖")
 
-    url = "https://firms.modaps.eosdis.nasa.gov/data/csv/MODIS_Global_7d.csv"
+    url = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/modis-c6.1/csv/MODIS_C6_1_USA_contiguous_and_Hawaii_24h.csv"
     df = pd.read_csv(url)
 
     # 檢查欄位
@@ -19,8 +19,7 @@ st.title("🔥 全球火災熱點地圖")
             df,
             lat="latitude",
             lon="longitude",
-            color="brightness",       # 火勢強度
-            size="brightness",        # 點大小也代表火勢
+            color="brightness",       # 火勢強度        
             hover_name="acq_date",    # 滑鼠懸停顯示火災日期
             projection="natural earth",
             color_continuous_scale="YlOrRd",  # 火焰色系
