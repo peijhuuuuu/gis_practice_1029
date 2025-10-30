@@ -28,9 +28,9 @@ st.plotly_chart(fig, use_container_width=True)
 
 # --- 1. 設定標題 ---
 import numpy as np
-st.title("Plotly 3D 地圖 (珠穆朗瑪峰 DEM)")
+st.title("Plotly 3D 地圖 (聖海倫火山DEM)")
 # --- 2. 使用 requests 下載 CSV，再用 pandas 讀取 ---
-url = "https://raw.githubusercontent.com/DahnJ/Awesome-DEM/master/data/denali_sample.csv"
+url = "https://raw.githubusercontent.com/plotly/datasets/master/volcano.csv"
 response = requests.get(url)
 response.raise_for_status()  # 如果下載失敗會直接報錯
 z_data = pd.read_csv(io.StringIO(response.text), header=None)  # 直接讀成 2D 陣列
