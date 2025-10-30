@@ -6,7 +6,7 @@ import pandas as pd
 
 st.title("🔥 全球火災熱點地圖")
 # --- 載入資料 ---
-url = "https://firms.modaps.eosdis.nasa.gov/data/active_fire/c6/csv/MODIS_C6_Global_24h.csv"
+url = "https://drive.google.com/file/d/1kEhZRm9cIpeO4xKvtl1EHc8cpm86K1To/view?usp=drive_link"
 df = pd.read_csv(url)
 
 # --- 畫地圖 ---
